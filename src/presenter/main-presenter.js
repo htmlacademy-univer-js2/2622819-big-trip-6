@@ -1,10 +1,12 @@
-import {render, RenderPosition} from '../render.js';
 import {UserAction} from '../const.js';
 
 import SortView from '../view/sort-view.js';
 import NoPointsView from '../view/no-points-view.js';
+import TripInfoView from '../view/trip-info-view.js';
 
 import PointPresenter from './point-presenter.js';
+import {formatDate} from '../utils/format.js';
+import {render, RenderPosition} from '../render.js';
 
 export default class MainPresenter {
 
@@ -12,6 +14,8 @@ export default class MainPresenter {
 
     this.pointsModel = pointsModel;
     this.filterModel = filterModel;
+
+    this.tripInfoComponent = null;
 
     this.pointPresenters = new Map();
 
@@ -28,6 +32,8 @@ export default class MainPresenter {
     this.points = this.pointsModel.getPoints();
     this.destinations = this.pointsModel.getDestinations();
     this.offers = this.pointsModel.getOffers();
+
+    this.renderTripInfo();
 
     render(
       new SortView(this.handleSortTypeChange),
@@ -46,6 +52,82 @@ export default class MainPresenter {
     }
 
     this.renderPoints(this.filteredPoints);
+  }
+
+  renderTripInfo() {
+
+    const routeNames = this.points
+      .map((point) =>
+        this.destinations.find(
+          (destination) => destination.id === point.destination
+        )?.name
+      )
+      .filter(Boolean);
+
+    let routeTitle = '';
+
+    if (routeNames.length <= 3) {
+      routeTitle = routeNames.join(' — ');
+    } else {
+      routeTitle =
+        `${routeNames[0]} — ... — ${routeNames.at(-1)}`;
+    }
+
+    const sortedPoints = [...this.points]
+      .sort(
+        (a, b) => new Date(a.dateFrom) - new Date(b.dateFrom)
+      );
+
+    const firstDate = sortedPoints[0]?.dateFrom;
+    const lastDate = sortedPoints.at(-1)?.dateTo;
+
+    const tripDates =
+      `${formatDate(firstDate)} — ${formatDate(lastDate)}`;
+
+    const totalPrice = this.points.reduce((sum, point) => {
+
+      let pointPrice = point.basePrice;
+
+      const offersByType = this.offers.find(
+        (offer) => offer.type === point.type
+      );
+
+      if (offersByType) {
+
+        point.offers.forEach((offerId) => {
+
+          const selectedOffer = offersByType.offers.find(
+            (offer) => offer.id === offerId
+          );
+
+          if (selectedOffer) {
+            pointPrice += selectedOffer.price;
+          }
+        });
+      }
+
+      return sum + pointPrice;
+    }, 0);
+
+    const tripMainElement =
+      document.querySelector('.trip-main');
+
+    if (this.tripInfoComponent) {
+      this.tripInfoComponent.element.remove();
+      this.tripInfoComponent.removeElement();
+    }
+
+    this.tripInfoComponent = new TripInfoView(
+      routeTitle,
+      tripDates,
+      totalPrice
+    );
+
+    render(
+      this.tripInfoComponent,
+      tripMainElement,
+      RenderPosition.AFTERBEGIN
+    );
   }
 
   get filteredPoints() {
@@ -117,7 +199,7 @@ export default class MainPresenter {
 
     this.clearPointList();
 
-    const sortedPoints = [...this.points];
+    const sortedPoints = [...this.filteredPoints];
 
     switch (sortType) {
       case 'time':
@@ -153,6 +235,8 @@ export default class MainPresenter {
 
             this.points = this.pointsModel.getPoints();
 
+            this.renderTripInfo();
+
             this.clearPointList();
 
             this.renderPoints(this.filteredPoints);
@@ -172,6 +256,8 @@ export default class MainPresenter {
           .then(() => {
 
             this.points = this.pointsModel.getPoints();
+
+            this.renderTripInfo();
 
             this.clearPointList();
 

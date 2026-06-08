@@ -29,6 +29,7 @@ const newPointPresenter = new NewPointPresenter(
 
 const filterPresenter = new FilterPresenter(
   document.querySelector('.trip-controls__filters'),
+  pointsModel,
   filterModel,
   () => {
     mainPresenter.currentSortType = 'day';

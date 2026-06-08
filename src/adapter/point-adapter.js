@@ -21,6 +21,8 @@ export default class PointAdapter {
   static adaptToServer(point) {
 
     const serverPoint = {
+      id: point.id,
+
       type: point.type,
       destination: point.destination,
 
