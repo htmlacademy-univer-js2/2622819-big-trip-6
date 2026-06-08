@@ -3,14 +3,34 @@ import 'flatpickr/dist/flatpickr.min.css';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {formatDateTime} from '../utils/format.js';
 
+const EVENT_TYPES = [
+  'taxi',
+  'bus',
+  'train',
+  'ship',
+  'drive',
+  'flight',
+  'check-in',
+  'sightseeing',
+  'restaurant'
+];
+
 export default class EditEventView extends AbstractStatefulView {
 
-  constructor(point, destination, offers, destinations) {
+  constructor(
+    point,
+    destination,
+    offers,
+    destinations,
+    isNewPoint = false
+  ) {
     super();
 
     this._callback = {};
 
     this._allDestinations = destinations;
+
+    this._isNewPoint = isNewPoint;
 
     this._state = {
       point,
@@ -68,6 +88,30 @@ export default class EditEventView extends AbstractStatefulView {
     `).join('');
   }
 
+  getEventTypesTemplate() {
+    return EVENT_TYPES.map((type) => `
+      <div class="event__type-item">
+
+        <input
+          id="event-type-${type}-1"
+          class="event__type-input visually-hidden"
+          type="radio"
+          name="event-type"
+          value="${type}"
+          ${this._state.point.type === type ? 'checked' : ''}
+        >
+
+        <label
+          class="event__type-label event__type-label--${type}"
+          for="event-type-${type}-1"
+        >
+          ${type.charAt(0).toUpperCase() + type.slice(1)}
+        </label>
+
+      </div>
+    `).join('');
+  }
+
   setFormSubmitHandler(callback) {
     this._callback.formSubmit = callback;
 
@@ -95,8 +139,16 @@ export default class EditEventView extends AbstractStatefulView {
   }
 
   setTypeChangeHandler() {
-    this.element.querySelector('.event__type-select')
-      .addEventListener('change', this.typeChangeHandler);
+
+    this.element
+      .querySelectorAll('.event__type-input')
+      .forEach((input) => {
+
+        input.addEventListener(
+          'change',
+          this.typeChangeHandler
+        );
+      });
   }
 
   setOffersChangeHandler() {
@@ -203,7 +255,43 @@ export default class EditEventView extends AbstractStatefulView {
     }
   };
 
+  getDestinationTemplate() {
+
+    const hasDescription =
+      this._state.destination.description;
+
+    const hasPictures =
+      this._state.destination.pictures.length > 0;
+
+    if (!hasDescription && !hasPictures) {
+      return '';
+    }
+
+    return `
+      <section class="event__section event__section--destination">
+        <h3 class="event__section-title event__section-title--destination">
+          Destination
+        </h3>
+
+        <p class="event__destination-description">
+          ${this._state.destination.description}
+        </p>
+
+        <div class="event__photos-container">
+          <div class="event__photos-tape">
+            ${this.getPicturesTemplate()}
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
   get template() {
+
+    const resetButtonText = this._isNewPoint
+      ? 'Cancel'
+      : 'Delete';
+
     return `
       <li class="trip-events__item">
         <form class="event event--edit" action="#" method="post">
@@ -212,7 +300,14 @@ export default class EditEventView extends AbstractStatefulView {
 
             <div class="event__type-wrapper">
 
-              <label class="event__type event__type-btn">
+              <label
+                class="event__type event__type-btn"
+                for="event-type-toggle-1"
+              >
+                <span class="visually-hidden">
+                  Choose event type
+                </span>
+
                 <img
                   class="event__type-icon"
                   width="17"
@@ -221,16 +316,25 @@ export default class EditEventView extends AbstractStatefulView {
                 >
               </label>
 
-              <select class="event__type-select">
+              <input
+                id="event-type-toggle-1"
+                class="event__type-toggle visually-hidden"
+                type="checkbox"
+              >
 
-                <option value="taxi">taxi</option>
-                <option value="flight">flight</option>
-                <option value="check-in">check-in</option>
-                <option value="bus">bus</option>
-                <option value="train">train</option>
-                <option value="ship">ship</option>
+              <div class="event__type-list">
 
-              </select>
+                <fieldset class="event__type-group">
+
+                  <legend class="visually-hidden">
+                    Event type
+                  </legend>
+
+                  ${this.getEventTypesTemplate()}
+
+                </fieldset>
+
+              </div>
 
             </div>
 
@@ -299,7 +403,7 @@ export default class EditEventView extends AbstractStatefulView {
               type="reset"
               ${this._state.isDisabled ? 'disabled' : ''}
             >
-              ${this._state.isDeleting ? 'Deleting...' : 'Delete'}
+              ${resetButtonText}
             </button>
 
             <button class="event__rollup-btn" type="button">
@@ -320,22 +424,7 @@ export default class EditEventView extends AbstractStatefulView {
               </div>
             </section>
 
-            <section class="event__section event__section--destination">
-              <h3 class="event__section-title event__section-title--destination">
-                Destination
-              </h3>
-
-              <p class="event__destination-description">
-                ${this._state.destination.description}
-              </p>
-
-              <div class="event__photos-container">
-                <div class="event__photos-tape">
-                  ${this.getPicturesTemplate()}
-                </div>
-              </div>
-
-            </section>
+            ${this.getDestinationTemplate()}
 
           </section>
 

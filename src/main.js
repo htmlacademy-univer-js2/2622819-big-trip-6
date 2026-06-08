@@ -51,11 +51,17 @@ const filterPresenter = new FilterPresenter(
         .querySelector('.trip-events__list')
         ?.replaceChildren();
 
+      const filterType = filterModel.getFilter();
+
+      const emptyMessage = filterType === 'everything'
+        ? 'Click New Event to create your first point'
+        : `There are no ${filterType} events now`;
+
       mainPresenter.eventsContainer.insertAdjacentHTML(
         'beforeend',
         `
           <p class="trip-events__msg">
-            There are no ${filterModel.getFilter()} events now
+            ${emptyMessage}
           </p>
         `
       );
@@ -72,20 +78,62 @@ render(
   document.querySelector('.trip-events')
 );
 
-pointsModel.init().then(() => {
+pointsModel.init()
+  .then(() => {
 
-  document
-    .querySelector('.trip-events__msg')
-    ?.remove();
+    document
+      .querySelector('.trip-events__msg')
+      ?.remove();
 
-  filterPresenter.init();
+    filterPresenter.init();
 
-  mainPresenter.init();
-});
+    mainPresenter.init();
+  })
+  .catch(() => {
+
+    document
+      .querySelector('.trip-events__msg')
+      ?.remove();
+
+    document
+      .querySelector('.trip-events')
+      .insertAdjacentHTML(
+        'beforeend',
+        `
+          <p class="trip-events__msg">
+            Failed to load latest route information
+          </p>
+        `
+      );
+  });
 
 document
   .querySelector('.trip-main__event-add-btn')
   .addEventListener('click', () => {
+
+    const newEventButton =
+      document.querySelector('.trip-main__event-add-btn');
+
+    newEventButton.disabled = true;
+
+    filterModel.setFilter('everything');
+
+    const everythingFilter =
+      document.querySelector('#filter-everything');
+
+    if (everythingFilter) {
+      everythingFilter.checked = true;
+    }
+
+    document.querySelector('#sort-day').checked = true;
+
+    mainPresenter.currentSortType = 'day';
+
+    mainPresenter.clearPointList();
+
+    mainPresenter.renderPoints(mainPresenter.points);
+
+    mainPresenter.handleModeChange();
 
     newPointPresenter.init();
   });

@@ -17,6 +17,8 @@ export default class NewPointPresenter {
     this.mainPresenter = mainPresenter;
 
     this.pointComponent = null;
+
+    this.escKeyDownHandler = this.escKeyDownHandler.bind(this);
   }
 
   init() {
@@ -42,7 +44,7 @@ export default class NewPointPresenter {
 
     const emptyPoint = {
       point: {
-        type: 'taxi',
+        type: 'flight',
         destination: defaultDestination.id,
         dateFrom: new Date().toISOString(),
         dateTo: new Date().toISOString(),
@@ -60,7 +62,8 @@ export default class NewPointPresenter {
       emptyPoint.point,
       emptyPoint.destination,
       emptyPoint.offers,
-      this.destinations
+      this.destinations,
+      true
     );
 
     render(
@@ -69,12 +72,25 @@ export default class NewPointPresenter {
       RenderPosition.AFTERBEGIN
     );
 
+    document.addEventListener(
+      'keydown',
+      this.escKeyDownHandler
+    );
+
     this.pointComponent.setDatepicker();
 
     this.pointComponent.setPriceInputHandler();
 
     this.pointComponent.setRollupClickHandler(() => {
       this.destroy();
+    });
+
+    this.pointComponent.setDeleteClickHandler((evt) => {
+      evt.preventDefault();
+
+      this.destroy();
+
+      document.querySelector('.trip-main__event-add-btn').disabled = false;
     });
 
     this.pointComponent.setFormSubmitHandler((evt) => {
@@ -114,11 +130,29 @@ export default class NewPointPresenter {
     });
   }
 
+  escKeyDownHandler(evt) {
+
+    if (evt.key === 'Escape') {
+      evt.preventDefault();
+
+      this.destroy();
+    }
+  }
+
   destroy() {
 
     if (this.pointComponent === null) {
       return;
     }
+
+    document.removeEventListener(
+      'keydown',
+      this.escKeyDownHandler
+    );
+
+    document.querySelector(
+      '.trip-main__event-add-btn'
+    ).disabled = false;
 
     remove(this.pointComponent);
 
