@@ -73,6 +73,12 @@ const filterPresenter = new FilterPresenter(
   }
 );
 
+pointsModel.addObserver(() => {
+  document.querySelector('.trip-controls__filters').innerHTML = '';
+
+  filterPresenter.init();
+});
+
 render(
   new LoadingView(),
   document.querySelector('.trip-events')

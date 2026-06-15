@@ -1,3 +1,4 @@
+import he from 'he';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
@@ -69,7 +70,7 @@ export default class EditEventView extends AbstractStatefulView {
             type="checkbox"
             ${isChecked ? 'checked' : ''}>
           <label class="event__offer-label" for="offer-${offer.id}">
-            <span class="event__offer-title">${offer.title}</span>
+            <span class="event__offer-title">${he.encode(offer.title)}</span>
             &plus;&euro;&nbsp;
             <span class="event__offer-price">${offer.price}</span>
           </label>
@@ -83,7 +84,7 @@ export default class EditEventView extends AbstractStatefulView {
       <img
         class="event__photo"
         src="${picture.src}"
-        alt="${picture.description}"
+        alt="${he.encode(picture.description)}"
       >
     `).join('');
   }
@@ -274,7 +275,7 @@ export default class EditEventView extends AbstractStatefulView {
         </h3>
 
         <p class="event__destination-description">
-          ${this._state.destination.description}
+          ${he.encode(this._state.destination.description)}
         </p>
 
         <div class="event__photos-container">
@@ -347,12 +348,12 @@ export default class EditEventView extends AbstractStatefulView {
                 class="event__input event__input--destination"
                 type="text"
                 list="destination-list"
-                value="${this._state.destination.name}"
+                value="${he.encode(this._state.destination.name)}"
               >
 
               <datalist id="destination-list">
                 ${this._allDestinations.map((destination) => `
-                  <option value="${destination.name}"></option>
+                  <option value="${he.encode(destination.name)}"></option>
                 `).join('')}
               </datalist>
             </div>
@@ -362,7 +363,7 @@ export default class EditEventView extends AbstractStatefulView {
               <input
                 class="event__input event__input--time-start"
                 type="text"
-                value="${formatDateTime(this._state.point.dateFrom)}"
+                value="${this._state.point.dateFrom ? formatDateTime(this._state.point.dateFrom) : ''}"
               >
 
               &mdash;
@@ -370,7 +371,7 @@ export default class EditEventView extends AbstractStatefulView {
               <input
                 class="event__input event__input--time-end"
                 type="text"
-                value="${formatDateTime(this._state.point.dateTo)}"
+                value="${this._state.point.dateTo ? formatDateTime(this._state.point.dateTo) : ''}"
               >
 
             </div>

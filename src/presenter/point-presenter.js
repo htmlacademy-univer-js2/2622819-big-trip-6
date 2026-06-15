@@ -1,5 +1,6 @@
 import {render, replace, remove} from '../framework/render.js';
 import {UserAction} from '../const.js';
+import {Key} from '../const.js';
 
 import EventView from '../view/event-view.js';
 import EditEventView from '../view/edit-event-view.js';
@@ -123,15 +124,6 @@ export default class PointPresenter {
     }
   }
 
-  escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape') {
-      evt.preventDefault();
-      this.replaceEditToEvent();
-
-      document.removeEventListener('keydown', this.escKeyDownHandler);
-    }
-  };
-
   setAborting() {
 
     this.editComponent.shake(() => {
@@ -148,4 +140,16 @@ export default class PointPresenter {
     remove(this.eventComponent);
     remove(this.editComponent);
   }
+
+  escKeyDownHandler = (evt) => {
+    if (evt.key === Key.ESCAPE) {
+      evt.preventDefault();
+      this.replaceEditToEvent();
+
+      document.removeEventListener(
+        'keydown',
+        this.escKeyDownHandler
+      );
+    }
+  };
 }
