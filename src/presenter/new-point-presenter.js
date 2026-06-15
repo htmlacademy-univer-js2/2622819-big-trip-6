@@ -2,6 +2,8 @@ import {render, remove, RenderPosition} from '../framework/render.js';
 
 import EditEventView from '../view/edit-event-view.js';
 
+import {Key} from '../const.js';
+
 export default class NewPointPresenter {
 
   constructor(
@@ -33,27 +35,25 @@ export default class NewPointPresenter {
     this.offers =
       this.pointsModel.getOffers();
 
-    const defaultDestination = this.destinations.length
-      ? this.destinations[0]
-      : {
-        id: '',
-        name: '',
-        description: '',
-        pictures: []
-      };
+    const emptyDestination = {
+      id: '',
+      name: '',
+      description: '',
+      pictures: []
+    };
 
     const emptyPoint = {
       point: {
         type: 'flight',
-        destination: defaultDestination.id,
-        dateFrom: new Date().toISOString(),
-        dateTo: new Date().toISOString(),
+        destination: '',
+        dateFrom: '',
+        dateTo: '',
         basePrice: 0,
         isFavorite: false,
         offers: []
       },
 
-      destination: defaultDestination,
+      destination: emptyDestination,
 
       offers: this.offers
     };
@@ -132,7 +132,7 @@ export default class NewPointPresenter {
 
   escKeyDownHandler(evt) {
 
-    if (evt.key === 'Escape') {
+    if (evt.key === Key.ESCAPE) {
       evt.preventDefault();
 
       this.destroy();

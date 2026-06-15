@@ -4,4 +4,8 @@ const UserAction = {
   ADD_POINT: 'ADD_POINT'
 };
 
-export {UserAction};
+const Key = {
+  ESCAPE: 'Escape'
+};
+
+export {UserAction, Key};

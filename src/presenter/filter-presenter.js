@@ -1,4 +1,4 @@
-import {render} from '../render.js';
+import {render} from '../framework/render.js';
 
 import FilterView from '../view/filter-view.js';
 
@@ -18,6 +18,8 @@ export default class FilterPresenter {
     this.filterModel = filterModel;
 
     this.onFilterChange = onFilterChange;
+
+    this.filterComponent = null;
   }
 
   init() {
@@ -61,12 +63,14 @@ export default class FilterPresenter {
       }
     ];
 
-    const filterComponent = new FilterView(
+    this.container.innerHTML = '';
+
+    this.filterComponent = new FilterView(
       filters,
       this.handleFilterTypeChange
     );
 
-    render(filterComponent, this.container);
+    render(this.filterComponent, this.container);
   }
 
   handleFilterTypeChange = (filterType) => {

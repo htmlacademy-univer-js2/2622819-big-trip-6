@@ -6,7 +6,9 @@ import TripInfoView from '../view/trip-info-view.js';
 
 import PointPresenter from './point-presenter.js';
 import {formatDate} from '../utils/format.js';
-import {render, RenderPosition} from '../render.js';
+import {render, RenderPosition} from '../framework/render.js';
+
+const MAX_ROUTE_POINTS = 3;
 
 export default class MainPresenter {
 
@@ -66,7 +68,7 @@ export default class MainPresenter {
 
     let routeTitle = '';
 
-    if (routeNames.length <= 3) {
+    if (routeNames.length <= MAX_ROUTE_POINTS) {
       routeTitle = routeNames.join(' — ');
     } else {
       routeTitle =
@@ -134,23 +136,25 @@ export default class MainPresenter {
 
     const filterType = this.filterModel.getFilter();
 
+    const now = new Date();
+
     switch (filterType) {
 
       case 'future':
         return this.points.filter(
-          (point) => new Date(point.dateFrom) > new Date()
+          (point) => new Date(point.dateFrom) > now
         );
 
       case 'present':
         return this.points.filter(
           (point) =>
-            new Date(point.dateFrom) <= new Date()
-            && new Date(point.dateTo) >= new Date()
+            new Date(point.dateFrom) <= now
+            && new Date(point.dateTo) >= now
         );
 
       case 'past':
         return this.points.filter(
-          (point) => new Date(point.dateTo) < new Date()
+          (point) => new Date(point.dateTo) < now
         );
 
       default:
@@ -161,7 +165,9 @@ export default class MainPresenter {
   renderPoints(points) {
 
     points.forEach((point) => {
-      const destination = this.destinations.find((d) => d.id === point.destination);
+      const destination = this.destinations.find(
+        (destinationItem) => destinationItem.id === point.destination
+      );
 
       const pointPresenter = new PointPresenter(
         this.eventsListContainer,

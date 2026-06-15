@@ -1,5 +1,6 @@
 import {render, replace, remove} from '../framework/render.js';
 import {UserAction} from '../const.js';
+import {Key} from '../const.js';
 
 import EventView from '../view/event-view.js';
 import EditEventView from '../view/edit-event-view.js';
@@ -124,7 +125,7 @@ export default class PointPresenter {
   }
 
   escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape') {
+    if (evt.key === Key.ESCAPE) {
       evt.preventDefault();
       this.replaceEditToEvent();
 
