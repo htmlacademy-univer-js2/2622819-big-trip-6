@@ -26,6 +26,36 @@ export default class MainPresenter {
     this.handleViewAction = this.handleViewAction.bind(this);
   }
 
+  get filteredPoints() {
+
+    const filterType = this.filterModel.getFilter();
+
+    const now = new Date();
+
+    switch (filterType) {
+
+      case 'future':
+        return this.points.filter(
+          (point) => new Date(point.dateFrom) > now
+        );
+
+      case 'present':
+        return this.points.filter(
+          (point) =>
+            new Date(point.dateFrom) <= now
+            && new Date(point.dateTo) >= now
+        );
+
+      case 'past':
+        return this.points.filter(
+          (point) => new Date(point.dateTo) < now
+        );
+
+      default:
+        return this.points;
+    }
+  }
+
   init() {
     this.filterContainer = document.querySelector('.trip-controls__filters');
     this.eventsContainer = document.querySelector('.trip-events');
@@ -130,36 +160,6 @@ export default class MainPresenter {
       tripMainElement,
       RenderPosition.AFTERBEGIN
     );
-  }
-
-  get filteredPoints() {
-
-    const filterType = this.filterModel.getFilter();
-
-    const now = new Date();
-
-    switch (filterType) {
-
-      case 'future':
-        return this.points.filter(
-          (point) => new Date(point.dateFrom) > now
-        );
-
-      case 'present':
-        return this.points.filter(
-          (point) =>
-            new Date(point.dateFrom) <= now
-            && new Date(point.dateTo) >= now
-        );
-
-      case 'past':
-        return this.points.filter(
-          (point) => new Date(point.dateTo) < now
-        );
-
-      default:
-        return this.points;
-    }
   }
 
   renderPoints(points) {

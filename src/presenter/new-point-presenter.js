@@ -130,15 +130,6 @@ export default class NewPointPresenter {
     });
   }
 
-  escKeyDownHandler(evt) {
-
-    if (evt.key === Key.ESCAPE) {
-      evt.preventDefault();
-
-      this.destroy();
-    }
-  }
-
   destroy() {
 
     if (this.pointComponent === null) {
@@ -157,5 +148,14 @@ export default class NewPointPresenter {
     remove(this.pointComponent);
 
     this.pointComponent = null;
+  }
+
+  escKeyDownHandler(evt) {
+
+    if (evt.key === Key.ESCAPE) {
+      evt.preventDefault();
+
+      this.destroy();
+    }
   }
 }

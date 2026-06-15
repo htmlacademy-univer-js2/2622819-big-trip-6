@@ -124,15 +124,6 @@ export default class PointPresenter {
     }
   }
 
-  escKeyDownHandler = (evt) => {
-    if (evt.key === Key.ESCAPE) {
-      evt.preventDefault();
-      this.replaceEditToEvent();
-
-      document.removeEventListener('keydown', this.escKeyDownHandler);
-    }
-  };
-
   setAborting() {
 
     this.editComponent.shake(() => {
@@ -149,4 +140,16 @@ export default class PointPresenter {
     remove(this.eventComponent);
     remove(this.editComponent);
   }
+
+  escKeyDownHandler = (evt) => {
+    if (evt.key === Key.ESCAPE) {
+      evt.preventDefault();
+      this.replaceEditToEvent();
+
+      document.removeEventListener(
+        'keydown',
+        this.escKeyDownHandler
+      );
+    }
+  };
 }
